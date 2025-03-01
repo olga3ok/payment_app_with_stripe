@@ -1,0 +1,103 @@
+/* Order Card */
+.order-card {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    padding: 1.25rem;
+}
+
+.card-title {
+    margin-bottom: 0.25rem;
+    font-size: 1.8rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Section titles */
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+/* Table styles */
+.table-responsive {
+    margin-bottom: 2rem;
+}
+
+.table th {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Order Summary */
+.order-summary {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-details {
+    font-size: 1.1rem;
+}
+
+.summary-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.summary-total {
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid #dee2e6;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+/* Payment Section */
+.payment-section {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e9ecef;
+}
+
+/* Card Element Container */
+.card-element-container {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+#card-element {
+    padding: 1rem;
+    border: 1px solid #ced4da;
+}
+
+#card-errors {
+    min-height: 20px;
+    font-size: 0.9rem;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .summary-total {
+        font-size: 1.2rem;
+    }
+}

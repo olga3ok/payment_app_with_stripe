@@ -1,0 +1,118 @@
+/* Основные стили */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* Стили для боковой панели */
+.sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+.list-group-item {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: #f1f8ff;
+    border-left: 3px solid #007bff;
+    padding-left: calc(1.25rem - 3px);
+}
+
+/* Стили для секций API */
+.endpoint-info {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.endpoint-info code {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    border: 1px solid #e9ecef;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+/* Стили для примеров кода */
+pre.response-example, pre.request-example, pre.code-example {
+    background-color: #f5f7ff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 1rem;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+pre.code-example {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    border: none;
+}
+
+/* Стили для таблиц */
+.table {
+    font-size: 0.9rem;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+/* Стили для карточек */
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Стили для алертов */
+.alert {
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+/* Анимация для ссылок в навигации */
+.navbar-brand {
+    transition: transform 0.2s;
+}
+
+.navbar-brand:hover {
+    transform: translateX(5px);
+}
+
+/* Стили для подвала */
+footer {
+    margin-top: 3rem;
+}
+
+/* Медиа-запросы для отзывчивости */
+@media (max-width: 768px) {
+    .sidebar {
+        position: static;
+        margin-bottom: 2rem;
+    }
+}

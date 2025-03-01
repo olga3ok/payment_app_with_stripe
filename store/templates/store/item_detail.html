@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy {{ item.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/item-styles.css" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card item-card">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="card-title">{{ item.name }}</h1>
+                    </div>
+                    <div class="card-body">
+                        <div class="item-description mb-4">
+                            <p>{{ item.description }}</p>
+                        </div>
+                        <div class="price-badge">
+                            <span class="badge bg-success price-tag">
+                                {% if item.currency == 'usd' %}${% elif item.currency == 'eur' %}€{% endif %}{{ item.get_display_price }}
+                            </span>
+                        </div>
+
+                        <div class="payment-section mt-4">
+                            <h4>Payment Options</h4>
+                            <div class="d-grid gap-3 d-md-flex justify-content-md-start mt-3">
+                                <button id="buy-button" class="btn btn-primary">Buy with Stripe Session</button>
+                                <button id="buy-button_payment" class="btn btn-outline-primary">Buy with Stripe Payment Intent</button>
+                            </div>
+
+                            <!-- Card element container -->
+                            <div class="card-element-container mt-4">
+                                <div id="card-element" class="form-control"></div>
+                                <div id="card-errors" class="text-danger mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        Item ID: {{ item.id }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript">
+        var stripe = Stripe('pk_test_51Qw75bA9AdIa0kDuXxFrlDMRnCspSGSsJAJ3MepTJdAL97oGdib473LWTVex9IRoxnMp4ypm3AQ4jdnjYRkg6POC001q4MAQwz');
+        // Создаем элементы Stripe
+        var elements = stripe.elements();
+        var cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        var buyButton1 = document.getElementById('buy-button');
+        buyButton1.addEventListener('click', function() {
+            // Create a new Checkout Session using the server-side endpoint
+            // Redirect to Stripe Session Checkout
+            fetch('/api/items/{{ item.id }}/buy/', {method: 'GET'})
+            .then(response => { return response.json(); })
+            .then(session => {
+                console.log('Session data:', session);
+                return stripe.redirectToCheckout({ sessionId: session.sessionId });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('card-errors').textContent = error.message;
+            });
+        });
+
+        var buyButton2 = document.getElementById('buy-button_payment');
+        buyButton2.addEventListener('click', function() {
+            // Create a new PaymentIntent using the server-side endpoint
+            fetch('/api/items/{{ item.id }}/payment_intent/', {method: 'GET'})
+            .then(response => { return response.json(); })
+            .then(session => {
+                return stripe.confirmCardPayment(
+                    session.clientSecret,
+                    {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                // Здесь можно добавить данные плательщика, если они нужны
+                            }
+                        }
+                    }
+                );
+            })
+            .then(function(result) {
+                if (result.error) {
+                    // Ошибка при обработке платежа
+                    console.error(result.error.message);
+                    document.getElementById('card-errors').textContent = result.error.message;
+                } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                    // Платеж успешно выполнен
+                    window.location.href = '/success';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('card-errors').textContent = error.message;
+            });
+        });
+    </script>
+</body>
+</html>

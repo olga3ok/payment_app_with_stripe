@@ -1,0 +1,67 @@
+/* Main Item Card Styles */
+.item-card {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+    transition: transform 0.3s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+}
+
+/* Item Description */
+.item-description {
+    font-size: 1.1rem;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+/* Price Badge */
+.price-badge {
+    margin: 1rem 0;
+}
+
+.price-tag {
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Payment Section */
+.payment-section {
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+/* Card Element Container */
+.card-element-container {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+#card-element {
+    padding: 1rem;
+    border: 1px solid #ced4da;
+}
+
+#card-errors {
+    min-height: 20px;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .price-tag {
+        font-size: 1.2rem;
+    }
+}

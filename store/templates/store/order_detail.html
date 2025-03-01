@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Order #{{ order.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/order-styles.css" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="card order-card">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="card-title">Order #{{ order.id }}</h1>
+                        <small class="text-light">Created: {{ order.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+
+                    <div class="card-body">
+                        <h2 class="section-title">Order Items</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+<!--                                        <th class="text-end">Subtotal</th>-->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order_item in order.orderitem_set.all %}
+                                    <tr>
+                                        <td>{{ order_item.item.name }}</td>
+                                        <td>{{ order_item.item.description }}</td>
+                                        <td>{% if order_item.item.currency == 'usd' %}${% elif order_item.item.currency == 'eur' %}€{% endif %}{{ order_item.item.get_display_price }}</td>
+                                        <td>{{ order_item.quantity }}</td>
+<!--                                        <td class="text-end">{{ order_item.get_subtotal }}</td>-->
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="order-summary">
+                            <h2 class="section-title">Order Summary</h2>
+                            <div class="summary-details">
+                                <div class="row">
+                                    <div class="col-md-6 offset-md-6">
+                                        <div class="summary-item d-flex justify-content-between">
+                                            <span>Subtotal:</span>
+                                            <span>{{ order.get_total_price }} {{ order.get_currency|upper }}</span>
+                                        </div>
+
+                                        {% if order.discount %}
+                                        <div class="summary-item d-flex justify-content-between text-success">
+                                            <span>Discount ({{ order.discount.name }}):</span>
+                                            <span>-{{ order.discount.percent_off }}%</span>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if order.tax %}
+                                        <div class="summary-item d-flex justify-content-between">
+                                            <span>Tax ({{ order.tax.name }}):</span>
+                                            <span>+{{ order.tax.percent }}%</span>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="summary-total d-flex justify-content-between">
+                                            <span>Total:</span>
+                                            <span>{{ order.get_total_price }} {{ order.get_currency|upper }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-section mt-4">
+                            <h2 class="section-title">Payment</h2>
+                            <div class="d-grid gap-3 d-md-flex justify-content-md-start mt-3">
+                                <button id="buy-button" class="btn btn-primary btn-lg">Buy with Session</button>
+                                <button id="buy-button_payment" class="btn btn-outline-primary btn-lg">Buy with Intent</button>
+                            </div>
+
+                            <!-- Card element container -->
+                            <div class="card-element-container mt-4">
+                                <div id="card-element" class="form-control"></div>
+                                <div id="card-errors" class="text-danger mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript">
+        var stripe = Stripe('pk_test_51Qw75bA9AdIa0kDuXxFrlDMRnCspSGSsJAJ3MepTJdAL97oGdib473LWTVex9IRoxnMp4ypm3AQ4jdnjYRkg6POC001q4MAQwz');
+        // Создаем элементы Stripe
+        var elements = stripe.elements();
+        var cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        var buyButton1 = document.getElementById('buy-button');
+        buyButton1.addEventListener('click', function() {
+            // Create a new Checkout Session using the server-side endpoint
+            // Redirect to Stripe Session Checkout
+            fetch('/api/orders/{{ order.id }}/buy/', {method: 'GET'})
+            .then(response => { return response.json(); })
+            .then(session => {
+                console.log('Session data:', session);
+                return stripe.redirectToCheckout({ sessionId: session.sessionId });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('card-errors').textContent = error.message;
+            });
+        });
+
+        var buyButton2 = document.getElementById('buy-button_payment');
+        buyButton2.addEventListener('click', function() {
+            // Create a new PaymentIntent using the server-side endpoint
+            fetch('/api/orders/{{ order.id }}/payment_intent/', {method: 'GET'})
+            .then(response => { return response.json(); })
+            .then(session => {
+                return stripe.confirmCardPayment(
+                    session.clientSecret,
+                    {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                // Здесь можно добавить данные плательщика, если они нужны
+                            }
+                        }
+                    }
+                );
+            })
+            .then(function(result) {
+                if (result.error) {
+                    // Ошибка при обработке платежа
+                    console.error(result.error.message);
+                    document.getElementById('card-errors').textContent = result.error.message;
+                } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                    // Платеж успешно выполнен
+                    window.location.href = '/success';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('card-errors').textContent = error.message;
+            });
+        });
+    </script>
+</body>
+</html>
