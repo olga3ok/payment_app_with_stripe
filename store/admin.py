@@ -1,5 +1,22 @@
 from django.contrib import admin
 from .models import Item, Discount, Tax, Order, OrderItem
+from django.core.exceptions import ValidationError
+from django.forms import BaseInlineFormSet
+
+
+class OrderItemInlineFormSet(BaseInlineFormSet):
+    """Формсет для валидации, что все товары в заказе имеют одинаковую валюту"""
+    def clean(self):
+        super().clean()
+        currencies = set()
+        for form in self.forms:
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                item = form.cleaned_data.get('item')
+                if item:
+                    currencies.add(item.currency)
+
+        if len(currencies) > 1:
+            raise ValidationError('Все товары в заказе должны быть в одной валюте!')
 
 
 class OrderItemInline(admin.TabularInline):
@@ -7,6 +24,8 @@ class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 1
     min_num = 1
+    formset = OrderItemInlineFormSet
+    can_delete = True
 
 
 @admin.register(Item)
